@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "robotframework-inilibrary"
+version = "1.0.0"
+description = ""
+authors = ["Shrinivas Bagewadi <shrinivasbagewadi@gmail.com>"]
+readme = "README.md"
+packages = [{include = "inilibrary", from = "src"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+configparser = "*"
+robotframework = "*"
+
+[tool.poetry.urls]
+repository = "https://pypi.org/project/robotframework-inilib/"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
