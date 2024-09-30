@@ -1,0 +1,6 @@
+venv/
+results/
+*pycache*
+log.html
+output.xml
+report.html

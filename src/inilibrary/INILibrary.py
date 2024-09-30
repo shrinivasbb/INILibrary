@@ -24,6 +24,7 @@ class INILibrary:
 
     def __init__(self):
         self.config = None
+        self.inifile= None
 
     @keyword("Load INI File")
     def load_INI_file(self, file_path: str, interpolation: str = False):
@@ -46,15 +47,22 @@ class INILibrary:
         | Load INI File | path/to/your/ini/file.ini |
 
         """
-        full_path = os.getcwd()+"/"+file_path
-        if not os.path.exists(full_path):
-            BuiltIn().log(
-                f'File "{full_path}" not found. Please provide a valid file path.', "ERROR")
-            return
-        self.config = configparser.ConfigParser(interpolation=configparser.Interpolation(
-                        )) if interpolation else configparser.ConfigParser()
-        self.config.read(full_path)
-        BuiltIn().log(f'Loaded INI file from {full_path}', "INFO")
+        try:
+            full_path = os.getcwd()+"/"+file_path
+            if not os.path.exists(full_path):
+                BuiltIn().log(
+                    f'File "{full_path}" not found. Please provide a valid file path.', "ERROR")
+                raise FileNotFoundError
+            self.config = configparser.ConfigParser(interpolation=configparser.Interpolation(
+                            )) if interpolation else configparser.ConfigParser()
+            self.config.read(full_path)
+            BuiltIn().log(f'Loaded INI file from {full_path}', "INFO")
+            self.inifile=file_path
+        except FileNotFoundError:
+            BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
+            raise FileNotFoundError(f"File does not exists {full_path}")
+        except Exception as e:
+            raise Exception(e)
 
     @keyword("Get INI Value")
     def get_INI_value(self, section: str, key: str):
@@ -77,25 +85,22 @@ class INILibrary:
         | Get INI Value | section | key |
 
         """
-        try:
+        try: 
             if self.config is None:
                 BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
-                return None
+                raise Exception("INI File not loaded")
             if section not in self.config:
-                BuiltIn().log(
-                    f'section "{section}" not found in the INI file.', "ERROR")
-                return None
+                BuiltIn().log(f'section "{section}" not found in the INI file.', "ERROR")
+                raise Exception("Section not Found")
             if key not in self.config[section]:
-                BuiltIn().log(
-                    f'key "{key}" not found in section "{section}".', "ERROR")
-                return None
-        except:
-            BuiltIn().log(f'An error occurred while retrieving the value.', "ERROR")
-            return None
-        finally:
+                BuiltIn().log(f'key "{key}" not found in section "{section}".', "ERROR")
+                raise Exception("key/option not Found")
             BuiltIn().log(
                 f'Value return for section {section} and key {key} is {self.config.get(section, key)}', "INFO")
             return self.config.get(section, key)
+        except Exception as e:
+            raise Exception(e)
+            
 
     @keyword('Set INI Value')
     def set_INI_value(self, section: str, key: str, value: str):
@@ -119,19 +124,17 @@ class INILibrary:
         try:
             if self.config is None:
                 BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
-                return None
+                raise Exception("INI File not loaded")
             if section not in self.config:
                 self.config.add_section(section)
             self.config.set(section, key, value)
-        except:
-            BuiltIn().log(f'An error occurred while Setting the value.', "ERROR")
-            return
-        finally:
-            BuiltIn().log(
-                f'Value set for section {section} and key {key} as {value}', "INFO")
+            BuiltIn().log(f'Value set for section {section} and key {key} as {value}', "INFO")
+        except Exception as e:
+            raise Exception(e)
+            
 
     @keyword("Save INI File")
-    def save_INI_file(self, file_path: str):
+    def save_INI_file(self, file_path: str=None):
         """
         Saves the INI file.
 
@@ -146,19 +149,18 @@ class INILibrary:
         """
         try:
             if self.config is None:
-                BuiltIn().log("INI file not loaded. Cannot save to file.", "ERROR")
-                return
-            with open(os.getcwd()+"/"+file_path, 'w') as configfile:
-                self.config.write(configfile)
-            BuiltIn().log(
-                f'INI file saved to {os.getcwd()+"/"+file_path}', "INFO")
+                BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
+                raise Exception("INI File not loaded")
+            if file_path is None:
+                with open(os.getcwd()+"/"+self.inifile, 'w') as configfile:
+                    self.config.write(configfile)
+                    BuiltIn().log(f'INI file saved to {os.getcwd()+"/"+self.inifile}', "INFO")
+            else:
+                with open(os.getcwd()+"/"+file_path, 'w') as configfile:
+                    self.config.write(configfile)
+                    BuiltIn().log(f'INI file saved to {os.getcwd()+"/"+file_path}', "INFO")
         except Exception as e:
-            BuiltIn().log(
-                f'An error occurred while Saving the file. {e}', "ERROR")
-            return
-        finally:
-            BuiltIn().log(
-                f'Saved INI file to {os.getcwd()+"/"+file_path}', "INFO")
+            raise Exception(e)
 
     @keyword("Remove Section")
     def remove_section(self, section: str):
@@ -181,18 +183,15 @@ class INILibrary:
         try:
             if self.config is None:
                 BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
-                return
+                raise Exception("INI File not loaded")
             if section not in self.config:
-                BuiltIn().log(
-                    f'Section "{section}" not found in the INI file.', "ERROR")
-                return
+                BuiltIn().log(f'Section "{section}" not found in the INI file.', "ERROR")
+                raise Exception('Section not found')
             self.config.remove_section(section)
-        except Exception as e:
-            BuiltIn().log(
-                f'An error occurred while removing the section {e}.', "ERROR")
-            return
-        finally:
             BuiltIn().log(f'Removed section "{section}"', "INFO")
+        except Exception as e:
+            raise Exception(e)
+            
 
     @keyword('Remove INI Key')
     def remove_INI_key(self, section: str, key: str):
@@ -217,23 +216,18 @@ class INILibrary:
         try:
             if self.config is None:
                 BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
-                return
+                raise Exception("INI File not loaded")
             if section not in self.config:
-                BuiltIn().log(
-                    f'Section "{section}" not found in the INI file.', "ERROR")
-                return
+                BuiltIn().log(f'Section "{section}" not found in the INI file.', "ERROR")
+                raise Exception('Section not found')
             if key not in self.config[section]:
-                BuiltIn().log(
-                    f'key "{key}" not found in section "{section}".', "ERROR")
-                return
+                BuiltIn().log(f'key "{key}" not found in section "{section}".', "ERROR")
+                raise Exception("Key not found")
             self.config.remove_option(section, key)
+            BuiltIn().log(f'Removed key "{key}" from section "{section}"', "INFO")
         except Exception as e:
-            BuiltIn().log(
-                f'An error occurred while removing the key {e}.', "ERROR")
-            return
-        finally:
-            BuiltIn().log(
-                f'Removed key "{key}" from section "{section}"', "INFO")
+            raise Exception(e)
+            
 
     @keyword("Get All Keys And Values")
     def get_all_keys_and_values(self, section: str):
@@ -255,24 +249,20 @@ class INILibrary:
         try:
             if self.config is None:
                 BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
-                return None
+                raise Exception("INI File not loaded")
             if section not in self.config:
-                BuiltIn().log(
-                    f'Section "{section}" not found in the INI file.', "ERROR")
-                return None
+                BuiltIn().log(f'Section "{section}" not found in the INI file.', "ERROR")
+                raise Exception('Section not found')
+            BuiltIn().log(f'Fetched all the Keys and Values "str({dict(self.config.items(section))})"', "INFO")
             return dict(self.config.items(section))
         except Exception as e:
-            BuiltIn().log(
-                f'An error occurred while getting all keys and values. {e}', "ERROR")
-            return None
-        finally:
-            BuiltIn().log(
-                f'Fetched all the Keys and Values "{dict(self.config.items(section))}"', "INFO")
+            raise Exception(e)
+            
 
     @keyword("Get Values List")
     def get_values_list(self, section: str, key: str):
         """
-        Gets a list of values for all matching keys under a specified ``section`` in the INI file.
+        Gets a list of values for all matching ``key`` under a specified ``section`` in the INI file.
 
         Fails if the ``config`` is None or INI File is not loaded.
 
@@ -296,26 +286,24 @@ class INILibrary:
         try:
             if self.config is None:
                 BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
-                return values
+                raise Exception("INI File not loaded")
             if section not in self.config:
-                BuiltIn().log(
-                    f'section "{section}" not found in the INI file.', "ERROR")
-                return values
+                BuiltIn().log(f'section "{section}" not found in the INI file.', "ERROR")
+                raise Exception('Section not found')
             if len(self.config.items(section)) == 0:
                 BuiltIn().log(f'section "{section}". no keys present', "ERROR")
-                return values
-            for key, value in self.config.items(section):
-                if key == key:
+                raise Exception('Atleast one pair of key-value should exist')
+            for akey, value in self.config.items(section):
+                if akey == key:
                     values.append(value)
+            if len(values)==0:
+                BuiltIn().log(f'No matching keys "{key}" under section "{section}"', "INFO")
+                return values
+            BuiltIn().log(f'Fetched all the values for key "{key}" under section "{section}" are {values}', "INFO")
+            return values
         except Exception as e:
-            BuiltIn().log(
-                f'An error occurred while getting values list. {e}', "ERROR")
-            return values
-        finally:
-            BuiltIn().log(
-                f'Fetched all the values for key "{key}" under section "{section}" are {values}', "INFO")
-            return values
-
+            Exception(e)
+            
     @keyword("Section Exists")
     def section_exists(self, section: str):
         """
@@ -337,16 +325,13 @@ class INILibrary:
         try:
             if self.config is None:
                 BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
-                return None
-            return section in self.config
-        except Exception as e:
-            BuiltIn().log(
-                f'An error occurred while checking section "{section}" existence. {e}', "ERROR")
-            return None
-        finally:
+                raise Exception("INI File not loaded")
             BuiltIn().log(
                 f'Section "{section}" exists in the INI file', "INFO")
             return self.config.has_section(section)
+        except Exception as e:
+            raise Exception(e)
+            
 
     @keyword("Key Exists")
     def key_exists(self, section: str, key: str):
@@ -371,16 +356,12 @@ class INILibrary:
         try:
             if self.config is None:
                 BuiltIn().log("INI file not loaded. Please load an INI file first.", "ERROR")
-                return False
+                raise Exception("INI File not loaded")
             if section not in self.config:
-                BuiltIn().log(
-                    f'section "{section}" not found in the INI file.', "ERROR")
-                return False
+                BuiltIn().log(f'section "{section}" not found in the INI file.', "ERROR")
+                raise Exception('Section not found')
+            BuiltIn().log(f'key "{key}" exists in section "{section}" is {self.config.has_option(section, key)}', "INFO")
             return self.config.has_option(section, key)
         except Exception as e:
-            BuiltIn().log(
-                f'An error occurred while checking key existence. {e}', "ERROR")
-            return False
-        finally:
-            BuiltIn().log(f'key "{key}" exists in section "{section}"', "INFO")
-            return self.config.has_option(section, key)
+            raise Exception(e)
+           

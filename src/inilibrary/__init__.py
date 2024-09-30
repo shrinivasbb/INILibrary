@@ -1,3 +1,3 @@
-from .inilib import INILibrary
+from src import INILibrary
 
 __all__ = ['INILibrary']
