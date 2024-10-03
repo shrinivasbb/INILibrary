@@ -3,10 +3,7 @@ import os
 from typing import Sequence
 from robot.api.deco import keyword
 from robot.libraries.BuiltIn import BuiltIn
-from robot.api.deco import library
 
-
-@library(scope="GLOBAL", version="1.0.0")
 class INILibrary:
     """
     INILibrary 
