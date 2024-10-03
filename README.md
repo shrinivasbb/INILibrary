@@ -13,4 +13,6 @@ The library uses Python's built-in configparser library.
 | Set INI Value | section                   | key | value |
 |Save INI File  |path/to/your/ini/file.ini|
 
-Keyword Documentation: [INILibrary (shrinivasbb.github.io)](https://shrinivasbb.github.io/INILibrary/)
+Keyword Documentation: [Robotframework-INILibrary (shrinivasbb.github.io)](https://shrinivasbb.github.io/Robotframework-INILibrary/)
+
+Github Repo: https://github.com/shrinivasbb/Robotframework-INILibrary
