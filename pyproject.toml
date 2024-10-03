@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "robotframework-inilibrary"
-version = "1.0.2"
+version = "1.0.3"
 description = ""
 authors = ["Shrinivas Bagewadi <shrinivasbagewadi@gmail.com>"]
 readme = "README.md"
