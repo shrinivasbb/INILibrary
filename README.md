@@ -11,5 +11,6 @@ The library uses Python's built-in configparser library.
 |Get INI Value   |section                   | key     |
 |Get INI Value   | section2                 | key2    ||
 | Set INI Value | section                   | key | value |
+|Save INI File  |path/to/your/ini/file.ini|
 
 Keyword Documentation: [INILibrary (shrinivasbb.github.io)](https://shrinivasbb.github.io/INILibrary/)
