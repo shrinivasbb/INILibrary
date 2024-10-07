@@ -1,5 +1,7 @@
 ## Robotframework-INILibrary
 
+[![Downloads](https://static.pepy.tech/badge/robotframework-inilibrary)](https://pepy.tech/project/robotframework-inilibrary)
+
 This library allows you to load and manipulate INI files.
 
 The library uses Python's built-in configparser library.
